@@ -129,7 +129,7 @@ export interface IActionListItem<T> {
 	 * the chevron opens an inline submenu with these actions.
 	 */
 	readonly submenuActions?: IAction[];
-	/** A submenu with full action-list rows, including details and independent toggles. */
+	/** A submenu with full action-list rows whose actions own popup closure. */
 	readonly submenu?: {
 		readonly id?: string;
 		readonly items: readonly IActionListItem<IAction>[];
@@ -1509,6 +1509,13 @@ export class ActionListWidget<T> extends Disposable {
 			return undefined;
 		}
 		const item = this._visibleMenuItems[index];
+		this._suppressHover = true;
+		try {
+			this._list.setFocus([index]);
+			this._list.reveal(index);
+		} finally {
+			this._suppressHover = false;
+		}
 		const row = this._getRowElement(index);
 		if (!row) {
 			return undefined;
@@ -1516,9 +1523,6 @@ export class ActionListWidget<T> extends Disposable {
 		const menu = this.domNode.closest('.action-widget') ?? this.domNode;
 		this._anchoredSubmenuItem = item;
 		this._anchoredSubmenuOnRight = anchor.x >= menu.getBoundingClientRect().width + (item.submenu?.horizontalGap ?? DEFAULT_SUBMENU_GAP);
-		this._suppressHover = true;
-		this._list.setFocus([index]);
-		this._suppressHover = false;
 		this._showSubmenuForElement(item, row);
 		this._currentSubmenuWidget?.focus();
 		const panelRect = this._submenuContainer.getBoundingClientRect();
@@ -2251,6 +2255,9 @@ export class ActionListWidget<T> extends Disposable {
 				onHide: () => { },
 				onSelect: (action) => {
 					action.run();
+					if (element.submenu) {
+						return;
+					}
 					const parentItem = this._currentSubmenuElement?.item;
 					this._hideSubmenu();
 					if (parentItem) {
