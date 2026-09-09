@@ -346,7 +346,9 @@ suite('ActionListWidget', () => {
 		const highlights = () => Array.from(widget.domNode.querySelectorAll('.focus-group-highlighted > .title'), title => title.textContent);
 		const states = [highlights()];
 		for (const index of [1, 3, 4]) {
-			widget.domNode.querySelectorAll<HTMLElement>('.monaco-list-row')[index].dispatchEvent(new MouseEvent('mouseover', { bubbles: true }));
+			const row = widget.domNode.querySelectorAll<HTMLElement>('.monaco-list-row')[index];
+			row.dispatchEvent(new MouseEvent('mouseover', { bubbles: true }));
+			row.dispatchEvent(new MouseEvent('mousemove', { bubbles: true, movementX: 1 }));
 			states.push(highlights());
 		}
 
@@ -491,6 +493,7 @@ suite('ActionListWidget', () => {
 			const initiallyFocusedSubmenu = panel.contains(document.activeElement);
 
 			modeRow.dispatchEvent(new MouseEvent('mouseover', { bubbles: true }));
+			modeRow.dispatchEvent(new MouseEvent('mousemove', { bubbles: true, movementX: 1 }));
 			await timeout(600);
 
 			states.push({
@@ -1396,6 +1399,7 @@ suite('ActionListWidget', () => {
 		const row = widget.domNode.querySelector<HTMLElement>('.monaco-list-row')!;
 
 		row.dispatchEvent(new MouseEvent('mouseover', { bubbles: true }));
+		row.dispatchEvent(new MouseEvent('mousemove', { bubbles: true, movementX: 1 }));
 		await timeout(300);
 		const displayBeforeDelay = panel.style.display;
 		await timeout(300);
@@ -1427,7 +1431,9 @@ suite('ActionListWidget', () => {
 			listOptions: { showFilter: false },
 		});
 		const panel = widget.domNode.querySelector<HTMLElement>('.action-list-submenu-panel')!;
-		widget.domNode.querySelector<HTMLElement>('.monaco-list-row')!.dispatchEvent(new MouseEvent('mouseover', { bubbles: true }));
+		const row = widget.domNode.querySelector<HTMLElement>('.monaco-list-row')!;
+		row.dispatchEvent(new MouseEvent('mouseover', { bubbles: true }));
+		row.dispatchEvent(new MouseEvent('mousemove', { bubbles: true, movementX: 1 }));
 		widget.domNode.dispatchEvent(new MouseEvent('mouseleave'));
 		await timeout(1000);
 
